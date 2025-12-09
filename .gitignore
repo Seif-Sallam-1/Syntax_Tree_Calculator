@@ -1,54 +1,25 @@
-# JetBrains CLion
-.idea/
-*.iml
+# Build artifacts
+/build/
+/cmake-build-debug/
+/*.exe
+/*.obj
+/*.o
+/*.pdb
 
-# CMake build folders
-cmake-build-*/
-cmake-build-debug/
-build/
-out/
-
-# Generated files from Qt/Autogen
-SmartCalculator_autogen/
-*.moc
-mocs_compilation.cpp
-
-# Compiled objects and binaries
-*.o
-*.obj
-*.exe
-*.dll
-*.so
-*.dylib
-*.pdb
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Editor folders
-.vscode/
-
-# Logs
-*.log
-
-# Other
+# Qt Creator
 *.user
-*.useros
-*.orig
-
-# If you use Qt Creator
 *.pro.user
 
-# Ignore local build artifacts
-Testing/Temporary/
+# CLion
+cmake-build-*/
+.idea/
 
-# Keep CMake files but ignore caches
-CMakeFiles/
-CMakeCache.txt
+# Visual Studio
+.vs/
+*.sln
+*.vcxproj*
 
-# Keep source files tracked
-!CMakeLists.txt
-!*.cpp
-!*.h
+# Misc
+.DS_Store
+*.log
 
