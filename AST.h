@@ -32,9 +32,6 @@ private:
     int getPrecedence(const string& op);
     bool isOperator(const string& part);
 
-    // Recursive Helpers
-    void printInorderRecursive(BNode* node);
-    void visualizeTreeRecursive(BNode* node, const string& prefix, bool isTail);
     double calculateRecursive(BNode* node);
 
 public:
@@ -46,9 +43,6 @@ public:
 
     // Core Functions
     void buildTree();
-    void printInorder();
-    void visualizeTree();
-    void printPostfix();
     double calculate();
 
     // Accessor for GUI
