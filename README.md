@@ -1,77 +1,104 @@
-# SmartCalculator
+Syntax Tree Calculator 🧮
+A powerful C++ educational tool that parses mathematical expressions, constructs an Abstract Syntax Tree (AST), and visualizes the structure interactively using the Qt framework.
 
-SmartCalculator is a small desktop calculator written in C++ using Qt and CMake. It supports parsing and evaluating mathematical expressions via a custom parser and generates an AST for expressions. The project is configured with CMake and is commonly developed with CLion on Windows.
+(Replace this link with an actual screenshot of your app later!)
 
-## Features
-- Evaluate arithmetic expressions and parentheses
-- Custom parser and AST representation (see `AST.h`, `Parser.h`)
-- Qt-based GUI (`MainWindow.h`, `main.cpp`)
-- CMake build system for cross-platform builds
+🚀 Features
+Expression Parsing: accurate parsing of mathematical expressions using the Shunting-yard Algorithm.
 
-## Prerequisites
-- Windows 10/11
-- CLion (recommended) or CMake + a C++ compiler (MSVC, MinGW)
-- Qt 5 or 6 (installed and available to CMake/CLion)
-- Git (for source control)
-- Optional: GitHub CLI (`gh`) for repository tasks
+Visual AST Generation: Automatically builds and draws the syntax tree node-by-node.
 
-## Quick build & run (CLion)
-1. Open CLion and select "Open" then choose the project folder (where `CMakeLists.txt` is).
-2. Configure the CMake profile to point to your Qt kit if required.
-3. Build the project (Build → Build Project).
-4. Run the target from CLion (Run → Run 'SmartCalculator').
+Interactive View:
 
-## Quick build & run (command-line, PowerShell)
-1. Create an out-of-source build directory:
-   mkdir build; cd build
-2. Configure and generate the build system (example using Ninja):
-   cmake -S .. -B . -G "Ninja" -DCMAKE_BUILD_TYPE=Release
-3. Build:
-   cmake --build . --config Release
-4. Run:
-   .\SmartCalculator.exe
+Zoom: Mouse wheel to zoom in/out of the tree.
 
-## Git / GitHub — push this project to your remote
-If your GitHub repository is empty (you created https://github.com/Seif-Sallam-1/SmartCalculator), here are the commands to push your local project to that remote. Run these in PowerShell from the project root (where this `README.md` lives).
+Pan: Click and drag to move around large trees.
 
-1) Initialize (if you haven't already) and commit:
-   git init
-   git add --all
-   git commit -m "Initial commit — add project files"
+Robust Calculation: Handles standard operators (+, -, *, /) and parentheses with correct Order of Operations (precedence).
 
-2) Make sure you are using `main` as the primary branch:
-   git branch -M main
+Smart Validation: Prevents invalid inputs (like letters or double operators) using Regular Expressions.
 
-3) Add the remote (HTTPS):
-   git remote add origin https://github.com/Seif-Sallam-1/SmartCalculator.git
+Error Handling: Detects and reports errors like "Division by Zero" or malformed expressions.
 
-   Or add via SSH (if you set up SSH keys on GitHub):
-   git remote add origin git@github.com:Seif-Sallam-1/SmartCalculator.git
+🛠️ Technical Stack
+Language: C++17
 
-4) Push and set upstream:
-   git push -u origin main
+Framework: Qt 6 (Widgets & Graphics View Framework)
 
-Authentication tips:
-- Recommended: run `gh auth login` and follow the interactive flow to authenticate.
-- Or create a Personal Access Token (PAT) on GitHub and use it when prompted for your password for HTTPS pushes.
+Build System: CMake
 
-If you prefer, you can create the remote and push in one command using GitHub CLI:
-   gh repo create Seif-Sallam-1/SmartCalculator --public --source=. --remote=origin --push
+Key Algorithms:
 
-## Repository metadata
-After pushing, you can set the repo description and topics (tags) with the GitHub CLI:
-   gh repo edit Seif-Sallam-1/SmartCalculator --description "SmartCalculator — Qt/C++ desktop calculator with expression parsing and AST." --add-topic qt --add-topic calculator --add-topic c++ --add-topic cmake
+Shunting-yard Algorithm (Infix to Postfix conversion)
 
-Or edit the "About" section on the repository page in your browser.
+Recursive Tree Traversal (for calculation and rendering)
 
-## Contributing
-Contributions are welcome. Suggested workflow:
-1. Fork the repository or create a branch: `git checkout -b feature/your-feature`
-2. Make changes, add tests where applicable.
-3. Commit and push your branch, then open a pull request.
+📂 Project Structure
+AST.h / AST.cpp: The core logic engine. Handles tokenization, parsing, tree construction, and memory management.
 
-## License
-Add a `LICENSE` file to the project root to declare the project's license (for example MIT).
+MainWindow.h: The GUI implementation. Manages the window, the zoomable graphics scene, and user input events.
 
-## Contact
-For questions, open an issue on GitHub or contact the maintainer via your GitHub profile.
+main.cpp: Application entry point.
+
+📦 Build Instructions
+Prerequisites
+C++ Compiler (GCC, Clang, or MSVC)
+
+Qt 6 Development Libraries
+
+CMake (3.14 or higher)
+
+Steps
+Clone the repository:
+
+Bash
+
+git clone https://github.com/Seif-sallam-1/Syntax-Tree-Calculator.git
+cd Syntax-Tree-Calculator
+Create a build directory:
+
+Bash
+
+mkdir build
+cd build
+Run CMake and Build:
+
+Bash
+
+cmake ..
+make  # Or 'nmake' on Windows / Open the project in CLion/QtCreator
+Run the Application:
+
+Bash
+
+./Syntax_Tree_Calculator
+🎮 How to Use
+Enter an Expression: Type a math problem (e.g., 5 + 3 * (2 - 1)) into the input field.
+
+Calculate: Press = or the Enter key.
+
+Explore:
+
+The result appears in the text box.
+
+The structure of the equation is drawn below as a tree.
+
+Use the Scroll Wheel to zoom in on complex branches.
+
+Click and Drag to move the tree view.
+
+Clear: Press AC to reset the screen and memory.
+
+🤝 Contributing
+Fork the project.
+
+Create your Feature Branch (git checkout -b feature/AmazingFeature).
+
+Commit your changes (git commit -m 'Add some AmazingFeature').
+
+Push to the branch (git push origin feature/AmazingFeature).
+
+Open a Pull Request.
+
+📜 License
+This project is open-source and available under the MIT License.
