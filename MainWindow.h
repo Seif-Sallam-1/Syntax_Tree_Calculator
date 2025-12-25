@@ -8,9 +8,7 @@
 #include <QGridLayout>
 #include <QGraphicsView>
 #include <QGraphicsScene>
-#include <QGraphicsEllipseItem>
 #include <QGraphicsTextItem>
-#include <QGraphicsLineItem>
 #include <QWheelEvent>
 #include <QRegularExpressionValidator>
 #include <QMessageBox>
@@ -62,6 +60,7 @@ private:
 public:
     MainWindow(QWidget *parent = nullptr) : QMainWindow(parent) {
         setWindowTitle("Data Structure SyntaxTree Calculator");
+        setWindowIcon(QIcon(":/ress/App_Icon.png"));
         resize(600, 900);
         setStyleSheet("QMainWindow { background-color: #121212; }");
         QWidget *centralWidget = new QWidget;
