@@ -46,7 +46,7 @@ A powerful C++ educational tool that parses mathematical expressions, constructs
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/your-username/Syntax-Tree-Calculator.git
+git clone https://github.com/Seif-Sallam-1/Syntax-Tree-Calculator.git
 cd Syntax-Tree-Calculator
 
 ```
@@ -99,4 +99,4 @@ make  # Or 'nmake' on Windows / Open the project in CLion/QtCreator
 
 ## 📜 License
 
-This project is open-source and available under the [MIT License](https://www.google.com/search?q=LICENSE).
+This project is open-source and available under the [MIT License]([https://www.google.com/search?q=LICENSE](https://github.com/Seif-Sallam-1/Syntax_Tree_Calculator?tab=MIT-1-ov-file)).
