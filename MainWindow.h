@@ -5,6 +5,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QGridLayout>
 #include <QGraphicsView>
 #include <QGraphicsScene>
@@ -12,7 +13,10 @@
 #include <QWheelEvent>
 #include <QRegularExpressionValidator>
 #include <QMessageBox>
+#include <QIcon>
 #include "AST.h"
+
+// --- Custom Classes ---
 
 class ZoomableView : public QGraphicsView {
 public:
@@ -49,6 +53,8 @@ public:
     }
 };
 
+// --- Main Window ---
+
 class MainWindow : public QMainWindow {
     Q_OBJECT
 
@@ -57,27 +63,59 @@ private:
     QGraphicsScene *scene;
     ZoomableView *view;
 
+    // Step Controls
+    QPushButton *btnStepBack;
+    QPushButton *btnStepForward;
+
+    // History Management for Undo/Redo (Shrink/Expand)
+    std::vector<AST*> history;
+    int currentStepIndex = -1;
+
 public:
     MainWindow(QWidget *parent = nullptr) : QMainWindow(parent) {
         setWindowTitle("Data Structure SyntaxTree Calculator");
-        setWindowIcon(QIcon(":/ress/App_Icon.png"));
+        setWindowIcon(QIcon(":/ress/App_Icon.png")); // Ensure resource file is set up
         resize(600, 900);
         setStyleSheet("QMainWindow { background-color: #121212; }");
+
         QWidget *centralWidget = new QWidget;
         setCentralWidget(centralWidget);
         QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
         mainLayout->setSpacing(15);
         mainLayout->setContentsMargins(15, 15, 15, 15);
+
+        // Display Area
         display = new QLineEdit;
         display->setPlaceholderText("Enter expression (e.g. 5+3*2)");
         display->setAlignment(Qt::AlignRight);
         display->setStyleSheet("QLineEdit { background-color: #1E1E1E; color: #00E5FF; font-size: 36px; border: 1px solid #333; border-radius: 10px; padding: 10px; }");
         display->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9+\\-*/().]+"), this));
         mainLayout->addWidget(display);
+
+        // Control Buttons Layout (Expand / Shrink)
+        QHBoxLayout *stepLayout = new QHBoxLayout();
+
+        btnStepBack = new QPushButton("Expand (Undo)");
+        btnStepBack->setStyleSheet("background-color: #D32F2F; color: white; padding: 10px; border-radius: 5px; font-weight: bold;");
+        btnStepBack->setEnabled(false);
+        connect(btnStepBack, &QPushButton::clicked, this, &MainWindow::onStepBack);
+
+        btnStepForward = new QPushButton("Shrink (Step)");
+        btnStepForward->setStyleSheet("background-color: #388E3C; color: white; padding: 10px; border-radius: 5px; font-weight: bold;");
+        btnStepForward->setEnabled(false);
+        connect(btnStepForward, &QPushButton::clicked, this, &MainWindow::onStepForward);
+
+        stepLayout->addWidget(btnStepBack);
+        stepLayout->addWidget(btnStepForward);
+        mainLayout->addLayout(stepLayout);
+
+        // Graphics View (The Tree)
         scene = new QGraphicsScene;
         view = new ZoomableView(scene);
         view->setStyleSheet("border: 1px solid #333; border-radius: 10px;");
         mainLayout->addWidget(view);
+
+        // Keypad
         QWidget *keypadWidget = new QWidget;
         QGridLayout *gridLayout = new QGridLayout(keypadWidget);
         gridLayout->setSpacing(10);
@@ -96,7 +134,11 @@ public:
                 CalcButton *btn = new CalcButton(text, rows[r][c].color);
                 gridLayout->addWidget(btn, r, c);
 
-                if (text == "AC") connect(btn, &QPushButton::clicked, this, [this](){ display->clear(); scene->clear(); display->setFocus(); });
+                if (text == "AC") connect(btn, &QPushButton::clicked, this, [this](){
+                    display->clear();
+                    clearHistory();
+                    display->setFocus();
+                });
                 else if (text == "DEL") connect(btn, &QPushButton::clicked, this, [this](){ display->backspace(); display->setFocus(); });
                 else if (text == "=") connect(btn, &QPushButton::clicked, this, &MainWindow::onEqualPressed);
                 else connect(btn, &QPushButton::clicked, this, [this, text](){ display->insert(text); display->setFocus(); });
@@ -106,25 +148,96 @@ public:
         mainLayout->addWidget(keypadWidget);
     }
 
+    ~MainWindow() {
+        clearHistory();
+    }
+
 private slots:
+    void clearHistory() {
+        for(auto tree : history) delete tree;
+        history.clear();
+        currentStepIndex = -1;
+        scene->clear();
+        btnStepBack->setEnabled(false);
+        btnStepForward->setEnabled(false);
+    }
+
     void onEqualPressed() {
         std::string text = display->text().toStdString();
         if (text.empty()) return;
 
         try {
-            AST myTree(text);
-            myTree.buildTree();
-            double result = myTree.calculate();
+            clearHistory(); // Clean old trees
+
+            // Create initial tree state
+            AST* initialTree = new AST(text);
+            initialTree->buildTree();
+
+            history.push_back(initialTree);
+            currentStepIndex = 0;
+
+            updateVisualization();
+
+            // Just calculate result for the text box, don't change the tree
+            double result = initialTree->calculate();
             display->setText(QString::number(result));
 
-            scene->clear();
-            drawTreeRecursive(myTree.getRoot(), 0, 0);
-            view->centerOn(0, 0);
         } catch (const std::exception &e) {
              display->setText("Error");
              QMessageBox::critical(this, "Calculation Error", e.what());
         }
     }
+
+    void onStepForward() {
+        if (currentStepIndex < 0 || currentStepIndex >= history.size()) return;
+
+        // 1. Get current state
+        AST* currentTree = history[currentStepIndex];
+
+        // 2. Create a DEEP COPY for the next step
+        AST* nextTree = new AST(*currentTree);
+
+        // 3. Try to simplify ONE step
+        bool changed = nextTree->simplifyOneStep();
+
+        if (changed) {
+            // Remove any "redo" history if we diverged
+            while (history.size() > currentStepIndex + 1) {
+                delete history.back();
+                history.pop_back();
+            }
+
+            history.push_back(nextTree);
+            currentStepIndex++;
+            updateVisualization();
+        } else {
+            // No changes possible (Solved)
+            delete nextTree;
+            QMessageBox::information(this, "Finished", "The expression is fully simplified!");
+        }
+    }
+
+    void onStepBack() {
+        if (currentStepIndex > 0) {
+            currentStepIndex--;
+            updateVisualization();
+        }
+    }
+
+    void updateVisualization() {
+        if (currentStepIndex < 0) return;
+
+        scene->clear();
+        AST* activeTree = history[currentStepIndex];
+        drawTreeRecursive(activeTree->getRoot(), 0, 0);
+        view->centerOn(0, 0);
+
+        // Enable buttons based on history state
+        btnStepBack->setEnabled(currentStepIndex > 0);
+        btnStepForward->setEnabled(true);
+    }
+
+    // --- Visualization Helpers ---
 
     int getLeafCount(AST::BNode* node) {
         if (!node) return 0;
