@@ -21,26 +21,29 @@ private:
     BNode* head;
     std::vector<std::string> postfixContainer;
 
-    // Helper functions
+    // Helpers
     int getPrecedence(const std::string& op);
     bool isOperator(const std::string& part);
     double calculateRecursive(BNode* node);
 
-    // Parsing pipeline
+    // Parsing
     std::vector<std::string> tokenize(const std::string& expression);
     std::vector<std::string> handleUnaryOperators(const std::vector<std::string>& tokens);
     void infixToPostfix(const std::vector<std::string>& tokens);
 
-    // New Helpers for Step-by-Step
+    // Step-by-Step Helpers
     BNode* copyTree(BNode* node);
-    bool simplifyRecursive(BNode* node);
     double calculateOp(const std::string& op, double left, double right);
+
+    // CHANGED: Returns current max depth of the tree
+    int getMaxDepth(BNode* node);
+    // CHANGED: Simplifies only nodes at a specific target depth
+    bool simplifyAtDepth(BNode* node, int currentDepth, int targetDepth);
 
 public:
     AST(std::string expression);
     ~AST();
 
-    // Copy Constructor & Assignment Operator (Crucial for History)
     AST(const AST& other);
     AST& operator=(const AST& other);
 
@@ -48,8 +51,8 @@ public:
     double calculate();
     BNode* getRoot();
 
-    // New Feature: Performs ONE calculation step
-    bool simplifyOneStep();
+    // Renamed for clarity, though you can keep it 'simplifyOneStep'
+    bool simplifyLowestLevel();
 };
 
 #endif

@@ -3,7 +3,7 @@
 #include <sstream>
 #include <stack>
 #include <cmath>
-#include <iomanip> // For formatting
+#include <algorithm> // For std::max
 
 using namespace std;
 
@@ -16,11 +16,9 @@ AST::BNode::~BNode() {
     delete right;
 }
 
-// --- Deep Copy Logic ---
+// --- Deep Copy ---
 AST::AST(const AST& other) : head(nullptr) {
-    if (other.head) {
-        head = copyTree(other.head);
-    }
+    if (other.head) head = copyTree(other.head);
 }
 
 AST& AST::operator=(const AST& other) {
@@ -36,7 +34,7 @@ AST::BNode* AST::copyTree(BNode* node) {
     return new BNode(node->data, copyTree(node->left), copyTree(node->right));
 }
 
-// --- Helpers ---
+// --- Basic Helpers ---
 int AST::getPrecedence(const string &op) {
     if (op == "_NEG_") return 3;
     if (op == "*" || op == "/") return 2;
@@ -48,66 +46,54 @@ bool AST::isOperator(const string &part) {
     return part == "+" || part == "-" || part == "*" || part == "/" || part == "_NEG_";
 }
 
-// --- Parsing ---
-vector<string> AST::tokenize(const string& expression) {
+// --- Parsing (Tokenize, Unary, Postfix) ---
+// (Keep these exactly the same as before, I will omit them for brevity
+//  unless you need them again, but they must be here in the final file)
+vector<string> AST::tokenize(const string& expression) { /* ... Same code ... */
     vector<string> parts;
     string current_part;
     for (char c : expression) {
         if (isspace(c)) {
-            if (!current_part.empty()) {
-                parts.push_back(current_part);
-                current_part.clear();
-            }
+            if (!current_part.empty()) { parts.push_back(current_part); current_part.clear(); }
             continue;
         }
         string op_str(1, c);
-        if (op_str == "+" || op_str == "-" || op_str == "*" ||
-            op_str == "/" || op_str == "(" || op_str == ")") {
-            if (!current_part.empty()) {
-                parts.push_back(current_part);
-                current_part.clear();
-            }
+        if (op_str == "+" || op_str == "-" || op_str == "*" || op_str == "/" || op_str == "(" || op_str == ")") {
+            if (!current_part.empty()) { parts.push_back(current_part); current_part.clear(); }
             parts.push_back(op_str);
-        } else {
-            current_part += c;
-        }
+        } else current_part += c;
     }
     if (!current_part.empty()) parts.push_back(current_part);
     return parts;
 }
 
-vector<string> AST::handleUnaryOperators(const vector<string>& tokens) {
+vector<string> AST::handleUnaryOperators(const vector<string>& tokens) { /* ... Same code ... */
     vector<string> processed = tokens;
     if (processed.empty()) return processed;
     if (processed[0] == "-") processed[0] = "_NEG_";
     for (size_t i = 1; i < processed.size(); ++i) {
         if (processed[i] == "-") {
             const string &prev_part = processed[i - 1];
-            if (isOperator(prev_part) || prev_part == "(") {
-                processed[i] = "_NEG_";
-            }
+            if (isOperator(prev_part) || prev_part == "(") processed[i] = "_NEG_";
         }
     }
     return processed;
 }
 
-void AST::infixToPostfix(const vector<string>& tokens) {
+void AST::infixToPostfix(const vector<string>& tokens) { /* ... Same code ... */
     stack<string> opStack;
     postfixContainer.clear();
     for (const string &part: tokens) {
-        if (!isOperator(part) && part != "(" && part != ")") {
-            postfixContainer.push_back(part);
-        } else if (part == "(") {
-            opStack.push(part);
-        } else if (part == ")") {
+        if (!isOperator(part) && part != "(" && part != ")") postfixContainer.push_back(part);
+        else if (part == "(") opStack.push(part);
+        else if (part == ")") {
             while (!opStack.empty() && opStack.top() != "(") {
                 postfixContainer.push_back(opStack.top());
                 opStack.pop();
             }
             if (!opStack.empty()) opStack.pop();
         } else if (isOperator(part)) {
-            while (!opStack.empty() && opStack.top() != "(" &&
-                   getPrecedence(opStack.top()) >= getPrecedence(part)) {
+            while (!opStack.empty() && opStack.top() != "(" && getPrecedence(opStack.top()) >= getPrecedence(part)) {
                 postfixContainer.push_back(opStack.top());
                 opStack.pop();
             }
@@ -154,7 +140,7 @@ void AST::buildTree() {
     head = nodeStack.top();
 }
 
-// --- Step-by-Step Logic ---
+// --- LEVEL-BY-LEVEL Logic (The Fix) ---
 
 double AST::calculateOp(const string& op, double leftVal, double rightVal) {
     if (op == "+") return leftVal + rightVal;
@@ -167,75 +153,103 @@ double AST::calculateOp(const string& op, double leftVal, double rightVal) {
     return 0;
 }
 
-// Format to remove trailing zeros (e.g., 5.0000 -> 5)
 string formatNumber(double val) {
     stringstream ss;
     ss << val;
     return ss.str();
 }
 
-bool AST::simplifyOneStep() {
-    if (!head) return false;
-    // If root is not an operator, we are already fully simplified
-    if (!isOperator(head->data)) return false;
-    return simplifyRecursive(head);
+// 1. Helper to find how deep the tree goes
+int AST::getMaxDepth(BNode* node) {
+    if (!node) return 0;
+    if (!node->left && !node->right) return 1;
+
+    int leftDepth = getMaxDepth(node->left);
+    int rightDepth = getMaxDepth(node->right);
+    return 1 + std::max(leftDepth, rightDepth);
 }
 
-bool AST::simplifyRecursive(BNode* node) {
+// 2. The brain: Only solves nodes if they are at the 'targetDepth'
+bool AST::simplifyAtDepth(BNode* node, int currentDepth, int targetDepth) {
     if (!node) return false;
 
-    // 1. Try to simplify children first (Deepest first -> Post-Order Traversal)
-    if (node->left && isOperator(node->left->data)) {
-        if (simplifyRecursive(node->left)) return true;
+    // Optimization: If we are not yet at the parents of the leaves, keep digging
+    bool changed = false;
+
+    // We look for operators that are exactly at (MaxDepth - 1)
+    // These operators should have children that are NUMBERS (leaves)
+
+    // Check Left Child
+    if (node->left) {
+        bool childChanged = simplifyAtDepth(node->left, currentDepth + 1, targetDepth);
+        if (childChanged) changed = true;
     }
-    if (node->right && isOperator(node->right->data)) {
-        if (simplifyRecursive(node->right)) return true;
+    // Check Right Child
+    if (node->right) {
+        bool childChanged = simplifyAtDepth(node->right, currentDepth + 1, targetDepth);
+        if (childChanged) changed = true;
     }
 
-    // 2. If children are ready (numbers), solve this node
-    if (isOperator(node->data)) {
-        // Case A: Unary Negation (e.g., -5)
-        if (node->data == "_NEG_") {
-            if (node->right && !isOperator(node->right->data)) {
-                double val = -stod(node->right->data);
-                node->data = formatNumber(val);
-                delete node->right; node->right = nullptr;
-                return true;
+    // If a child changed, we don't calculate THIS node yet.
+    if (changed) return true;
+
+    // --- Is this node ready to be calculated? ---
+    // It must be an operator
+    if (!isOperator(node->data)) return false;
+
+    // It must be effectively at the bottom (children are numbers or null)
+    bool leftReady = (!node->left) || (!isOperator(node->left->data));
+    bool rightReady = (!node->right) || (!isOperator(node->right->data));
+
+    if (leftReady && rightReady) {
+        // Only simplify if we are deep enough (OR if the tree is small)
+        // This ensures we solve bottom-up layers
+        int myDepthFromBottom = getMaxDepth(node); // 2 means I have children which are leaves
+
+        // If my depth is 2, I am a parent of leaves. I am the lowest level operator.
+        if (myDepthFromBottom == 2) {
+
+            // Perform calculation
+             if (node->data == "_NEG_") {
+                if (node->right) {
+                    double val = -stod(node->right->data);
+                    node->data = formatNumber(val);
+                    delete node->right; node->right = nullptr;
+                    return true;
+                }
+            } else {
+                if (node->left && node->right) {
+                    double l = stod(node->left->data);
+                    double r = stod(node->right->data);
+                    double res = calculateOp(node->data, l, r);
+                    node->data = formatNumber(res);
+                    delete node->left; node->left = nullptr;
+                    delete node->right; node->right = nullptr;
+                    return true;
+                }
             }
         }
-        // Case B: Binary Operation (e.g., 3 + 4)
-        else {
-            if (node->left && node->right &&
-                !isOperator(node->left->data) && !isOperator(node->right->data)) {
-
-                double l = stod(node->left->data);
-                double r = stod(node->right->data);
-                double res = calculateOp(node->data, l, r);
-
-                node->data = formatNumber(res);
-
-                // Remove children since they are now merged into this node
-                delete node->left; node->left = nullptr;
-                delete node->right; node->right = nullptr;
-                return true;
-            }
-        }
     }
+
     return false;
 }
 
-// --- Standard Calculation ---
+bool AST::simplifyLowestLevel() {
+    if (!head || !isOperator(head->data)) return false;
+
+    // We don't actually need to pass targetDepth anymore because
+    // we calculate "depth from bottom" dynamically for every node.
+    // The simplified logic inside simplifyAtDepth checks if a node is a "parent of leaves".
+
+    return simplifyAtDepth(head, 1, 0);
+}
+
+// --- Standard Calc ---
 double AST::calculateRecursive(BNode *node) {
     if (!node) return 0.0;
-    if (!isOperator(node->data)) {
-        try { return stod(node->data); }
-        catch (...) { throw runtime_error("Error: Invalid operand '" + node->data + "'"); }
-    }
+    if (!isOperator(node->data)) return stod(node->data);
     if (node->data == "_NEG_") return -calculateRecursive(node->right);
-
-    double leftVal = calculateRecursive(node->left);
-    double rightVal = calculateRecursive(node->right);
-    return calculateOp(node->data, leftVal, rightVal);
+    return calculateOp(node->data, calculateRecursive(node->left), calculateRecursive(node->right));
 }
 
 double AST::calculate() {

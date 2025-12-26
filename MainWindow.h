@@ -191,27 +191,21 @@ private slots:
     void onStepForward() {
         if (currentStepIndex < 0 || currentStepIndex >= history.size()) return;
 
-        // 1. Get current state
         AST* currentTree = history[currentStepIndex];
-
-        // 2. Create a DEEP COPY for the next step
         AST* nextTree = new AST(*currentTree);
 
-        // 3. Try to simplify ONE step
-        bool changed = nextTree->simplifyOneStep();
+        // CHANGE THIS LINE
+        bool changed = nextTree->simplifyLowestLevel();
 
         if (changed) {
-            // Remove any "redo" history if we diverged
             while (history.size() > currentStepIndex + 1) {
                 delete history.back();
                 history.pop_back();
             }
-
             history.push_back(nextTree);
             currentStepIndex++;
             updateVisualization();
         } else {
-            // No changes possible (Solved)
             delete nextTree;
             QMessageBox::information(this, "Finished", "The expression is fully simplified!");
         }
