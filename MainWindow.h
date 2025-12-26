@@ -167,9 +167,8 @@ private slots:
         if (text.empty()) return;
 
         try {
-            clearHistory(); // Clean old trees
+            clearHistory();
 
-            // Create initial tree state
             AST* initialTree = new AST(text);
             initialTree->buildTree();
 
@@ -178,7 +177,6 @@ private slots:
 
             updateVisualization();
 
-            // Just calculate result for the text box, don't change the tree
             double result = initialTree->calculate();
             display->setText(QString::number(result));
 

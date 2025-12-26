@@ -3,11 +3,10 @@
 #include <sstream>
 #include <stack>
 #include <cmath>
-#include <algorithm> // For std::max
+#include <algorithm>
 
 using namespace std;
 
-// --- BNode ---
 AST::BNode::BNode(string val, BNode *l, BNode *r)
     : data(val), left(l), right(r) {}
 
@@ -16,7 +15,6 @@ AST::BNode::~BNode() {
     delete right;
 }
 
-// --- Deep Copy ---
 AST::AST(const AST& other) : head(nullptr) {
     if (other.head) head = copyTree(other.head);
 }
@@ -34,7 +32,6 @@ AST::BNode* AST::copyTree(BNode* node) {
     return new BNode(node->data, copyTree(node->left), copyTree(node->right));
 }
 
-// --- Basic Helpers ---
 int AST::getPrecedence(const string &op) {
     if (op == "_NEG_") return 3;
     if (op == "*" || op == "/") return 2;
@@ -46,10 +43,7 @@ bool AST::isOperator(const string &part) {
     return part == "+" || part == "-" || part == "*" || part == "/" || part == "_NEG_";
 }
 
-// --- Parsing (Tokenize, Unary, Postfix) ---
-// (Keep these exactly the same as before, I will omit them for brevity
-//  unless you need them again, but they must be here in the final file)
-vector<string> AST::tokenize(const string& expression) { /* ... Same code ... */
+vector<string> AST::tokenize(const string& expression) {
     vector<string> parts;
     string current_part;
     for (char c : expression) {
@@ -67,7 +61,7 @@ vector<string> AST::tokenize(const string& expression) { /* ... Same code ... */
     return parts;
 }
 
-vector<string> AST::handleUnaryOperators(const vector<string>& tokens) { /* ... Same code ... */
+vector<string> AST::handleUnaryOperators(const vector<string>& tokens) {
     vector<string> processed = tokens;
     if (processed.empty()) return processed;
     if (processed[0] == "-") processed[0] = "_NEG_";
@@ -80,7 +74,7 @@ vector<string> AST::handleUnaryOperators(const vector<string>& tokens) { /* ... 
     return processed;
 }
 
-void AST::infixToPostfix(const vector<string>& tokens) { /* ... Same code ... */
+void AST::infixToPostfix(const vector<string>& tokens) {
     stack<string> opStack;
     postfixContainer.clear();
     for (const string &part: tokens) {
@@ -107,7 +101,6 @@ void AST::infixToPostfix(const vector<string>& tokens) { /* ... Same code ... */
     }
 }
 
-// --- Constructor ---
 AST::AST(string expression) : head(nullptr) {
     vector<string> raw_tokens = tokenize(expression);
     vector<string> processed_tokens = handleUnaryOperators(raw_tokens);
@@ -140,8 +133,6 @@ void AST::buildTree() {
     head = nodeStack.top();
 }
 
-// --- LEVEL-BY-LEVEL Logic (The Fix) ---
-
 double AST::calculateOp(const string& op, double leftVal, double rightVal) {
     if (op == "+") return leftVal + rightVal;
     if (op == "-") return leftVal - rightVal;
@@ -159,7 +150,7 @@ string formatNumber(double val) {
     return ss.str();
 }
 
-// 1. Helper to find how deep the tree goes
+
 int AST::getMaxDepth(BNode* node) {
     if (!node) return 0;
     if (!node->left && !node->right) return 1;
@@ -169,47 +160,29 @@ int AST::getMaxDepth(BNode* node) {
     return 1 + std::max(leftDepth, rightDepth);
 }
 
-// 2. The brain: Only solves nodes if they are at the 'targetDepth'
 bool AST::simplifyAtDepth(BNode* node, int currentDepth, int targetDepth) {
     if (!node) return false;
 
-    // Optimization: If we are not yet at the parents of the leaves, keep digging
     bool changed = false;
 
-    // We look for operators that are exactly at (MaxDepth - 1)
-    // These operators should have children that are NUMBERS (leaves)
-
-    // Check Left Child
     if (node->left) {
         bool childChanged = simplifyAtDepth(node->left, currentDepth + 1, targetDepth);
         if (childChanged) changed = true;
     }
-    // Check Right Child
     if (node->right) {
         bool childChanged = simplifyAtDepth(node->right, currentDepth + 1, targetDepth);
         if (childChanged) changed = true;
     }
 
-    // If a child changed, we don't calculate THIS node yet.
     if (changed) return true;
 
-    // --- Is this node ready to be calculated? ---
-    // It must be an operator
     if (!isOperator(node->data)) return false;
-
-    // It must be effectively at the bottom (children are numbers or null)
     bool leftReady = (!node->left) || (!isOperator(node->left->data));
     bool rightReady = (!node->right) || (!isOperator(node->right->data));
 
     if (leftReady && rightReady) {
-        // Only simplify if we are deep enough (OR if the tree is small)
-        // This ensures we solve bottom-up layers
-        int myDepthFromBottom = getMaxDepth(node); // 2 means I have children which are leaves
-
-        // If my depth is 2, I am a parent of leaves. I am the lowest level operator.
+        int myDepthFromBottom = getMaxDepth(node);
         if (myDepthFromBottom == 2) {
-
-            // Perform calculation
              if (node->data == "_NEG_") {
                 if (node->right) {
                     double val = -stod(node->right->data);
@@ -237,14 +210,9 @@ bool AST::simplifyAtDepth(BNode* node, int currentDepth, int targetDepth) {
 bool AST::simplifyLowestLevel() {
     if (!head || !isOperator(head->data)) return false;
 
-    // We don't actually need to pass targetDepth anymore because
-    // we calculate "depth from bottom" dynamically for every node.
-    // The simplified logic inside simplifyAtDepth checks if a node is a "parent of leaves".
-
     return simplifyAtDepth(head, 1, 0);
 }
 
-// --- Standard Calc ---
 double AST::calculateRecursive(BNode *node) {
     if (!node) return 0.0;
     if (!isOperator(node->data)) return stod(node->data);
