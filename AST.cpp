@@ -4,6 +4,7 @@
 #include <stack>
 #include <cmath>
 #include <algorithm>
+#include <format>
 
 using namespace std;
 
@@ -145,9 +146,7 @@ double AST::calculateOp(const string& op, double leftVal, double rightVal) {
 }
 
 string formatNumber(double val) {
-    stringstream ss;
-    ss << val;
-    return ss.str();
+    return format("{:.2f}", val);
 }
 
 
