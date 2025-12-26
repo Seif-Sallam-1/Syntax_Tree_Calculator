@@ -2,7 +2,11 @@
 
 A powerful C++ educational tool that parses mathematical expressions, constructs an **Abstract Syntax Tree (AST)**, and visualizes the structure interactively using the Qt framework.
 
-<img width="1919" height="1012" alt="image" src="https://github.com/user-attachments/assets/81d86703-b618-45f0-a963-504cecd7e8a0" />
+<div align="center">
+  <kbd>
+    <img src="https://github.com/user-attachments/assets/81d86703-b618-45f0-a963-504cecd7e8a0" alt="Framed Image" width="900">
+  </kbd>
+</div>
 
 ## 🚀 Features
 
