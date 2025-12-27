@@ -192,7 +192,6 @@ private slots:
         AST* currentTree = history[currentStepIndex];
         AST* nextTree = new AST(*currentTree);
 
-        // CHANGE THIS LINE
         bool changed = nextTree->simplifyLowestLevel();
 
         if (changed) {
@@ -256,7 +255,7 @@ private slots:
         }
 
         double currentChildX = x - (totalWidth / 2.0);
-        for (size_t i = 0; i < children.size(); ++i) {
+        for (int i = 0; i < children.size(); ++i) {
             double childRealX = currentChildX + (childWidths[i] / 2.0);
             QGraphicsLineItem *line = scene->addLine(x, y + nodeSize/2, childRealX, y + verticalGap - nodeSize/2);
             line->setPen(QPen(QColor("#555"), 2));

@@ -48,10 +48,6 @@ vector<string> AST::tokenize(const string& expression) {
     vector<string> parts;
     string current_part;
     for (char c : expression) {
-        if (isspace(c)) {
-            if (!current_part.empty()) { parts.push_back(current_part); current_part.clear(); }
-            continue;
-        }
         string op_str(1, c);
         if (op_str == "+" || op_str == "-" || op_str == "*" || op_str == "/" || op_str == "(" || op_str == ")") {
             if (!current_part.empty()) { parts.push_back(current_part); current_part.clear(); }
@@ -66,7 +62,7 @@ vector<string> AST::handleUnaryOperators(const vector<string>& tokens) {
     vector<string> processed = tokens;
     if (processed.empty()) return processed;
     if (processed[0] == "-") processed[0] = "_NEG_";
-    for (size_t i = 1; i < processed.size(); ++i) {
+    for (int i = 1; i < processed.size(); ++i) {
         if (processed[i] == "-") {
             const string &prev_part = processed[i - 1];
             if (isOperator(prev_part) || prev_part == "(") processed[i] = "_NEG_";
@@ -156,7 +152,7 @@ int AST::getMaxDepth(BNode* node) {
 
     int leftDepth = getMaxDepth(node->left);
     int rightDepth = getMaxDepth(node->right);
-    return 1 + std::max(leftDepth, rightDepth);
+    return 1 + max(leftDepth, rightDepth);
 }
 
 bool AST::simplifyAtDepth(BNode* node, int currentDepth, int targetDepth) {
