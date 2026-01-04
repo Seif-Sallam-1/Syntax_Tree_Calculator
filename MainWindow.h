@@ -8,6 +8,11 @@
 #include <QGraphicsScene>
 #include <QGraphicsTextItem>
 #include <vector>
+#include <QFile>
+#include <QTextStream>
+#include <QDialog>
+#include <QTextEdit>
+#include <QDateTime>
 #include "AST.h"
 
 
@@ -36,23 +41,26 @@ private slots:
     void onEqualPressed();
     void onStepForward();
     void onStepBack();
+    void showHistory();
 
 private:
-    // UI Elements
     QLineEdit *display;
     QGraphicsScene *scene;
     ZoomableView *view;
     QPushButton *btnStepBack;
     QPushButton *btnStepForward;
+    QPushButton *btnHistory;
 
-    // Logic Members
     std::vector<AST*> history;
     int currentStepIndex;
 
-    // Helper Functions
     void updateVisualization();
+
     int getLeafCount(AST::BNode* node);
-    void drawTreeRecursive(AST::BNode* node, double x, double y);
+    int calculateMaxNodeWidth(AST::BNode* node);
+    void drawTreeRecursive(AST::BNode* node, double x, double y, double spacing);
+
+    void saveToHistory(const QString &expression, const QString &result);
 };
 
 #endif
