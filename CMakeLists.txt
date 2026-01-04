@@ -15,6 +15,7 @@ add_executable(Syntax_Tree_Calculator
         MainWindow.h
         AST.cpp
         resources.qrc
+        mainwindow.cpp
 )
 
 target_link_libraries(Syntax_Tree_Calculator PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets)

@@ -82,9 +82,13 @@ void AST::infixToPostfix(const vector<string>& tokens) {
                 postfixContainer.push_back(opStack.top());
                 opStack.pop();
             }
-            if (!opStack.empty()) opStack.pop();
-        } else if (isOperator(part)) {
-            while (!opStack.empty() && opStack.top() != "(" && getPrecedence(opStack.top()) >= getPrecedence(part)) {
+            if (opStack.empty()) {
+                throw runtime_error("Error: Unmatched right parenthesis.");
+            }
+            opStack.pop();
+        }
+        else if (isOperator(part)) {
+            while (!opStack.empty() && opStack.top() != "(" && getPrecedence(opStack.top()) > getPrecedence(part)) {
                 postfixContainer.push_back(opStack.top());
                 opStack.pop();
             }

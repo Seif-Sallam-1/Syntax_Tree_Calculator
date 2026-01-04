@@ -4,37 +4,39 @@
 #include <string>
 #include <vector>
 
+using namespace std;
+
 class AST {
 public:
     class BNode {
     public:
-        std::string data;
+        string data;
         BNode* left;
         BNode* right;
-        BNode(std::string val, BNode* l = nullptr, BNode* r = nullptr);
+        BNode(string val, BNode* l = nullptr, BNode* r = nullptr);
         ~BNode();
     };
 
 private:
     BNode* head;
-    std::vector<std::string> postfixContainer;
+    vector<string> postfixContainer;
 
-    int getPrecedence(const std::string& op);
-    bool isOperator(const std::string& part);
+    int getPrecedence(const string& op);
+    bool isOperator(const string& part);
     double calculateRecursive(BNode* node);
 
-    std::vector<std::string> tokenize(const std::string& expression);
-    std::vector<std::string> handleUnaryOperators(const std::vector<std::string>& tokens);
-    void infixToPostfix(const std::vector<std::string>& tokens);
+    vector<string> tokenize(const string& expression);
+    vector<string> handleUnaryOperators(const vector<string>& tokens);
+    void infixToPostfix(const vector<string>& tokens);
 
     BNode* copyTree(BNode* node);
-    double calculateOp(const std::string& op, double left, double right);
+    double calculateOp(const string& op, double left, double right);
 
     int getMaxDepth(BNode* node);
     bool simplifyAtDepth(BNode* node, int currentDepth, int targetDepth);
 
 public:
-    AST(std::string expression);
+    AST(string expression);
     ~AST();
 
     AST(const AST& other);
