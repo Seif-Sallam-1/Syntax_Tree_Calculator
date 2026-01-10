@@ -1,91 +1,135 @@
+Here is the complete, unified **README.md** with the requested versioning section included, followed by the specific **Git commands** to merge your `step-by-step` branch into `main`.
+
+### 1. The Unified README.md
+
+Copy the code block below into your `README.md` file.
+
+```markdown
 # Syntax Tree Calculator 🧮
 
 A powerful C++ educational tool that parses mathematical expressions, constructs an **Abstract Syntax Tree (AST)**, and visualizes the structure interactively using the Qt framework.
 
 <div align="center">
   <kbd>
-    <img src="https://github.com/user-attachments/assets/30a408ec-bbf9-4457-9e8e-df8a51751ee7" alt="Framed Image" width="900">
+    <img src="https://github.com/user-attachments/assets/30a408ec-bbf9-4457-9e8e-df8a51751ee7" alt="Syntax Tree Calculator Screenshot" width="900">
   </kbd>
 </div>
 
 ## 🚀 Features
 
-* **Expression Parsing:** Accurate parsing of mathematical expressions using the **Shunting-yard Algorithm**.
-* **Visual AST Generation:** Automatically builds and draws the syntax tree node-by-node.
+* **Expression Parsing:** Accurate parsing of mathematical expressions using the **Shunting-yard Algorithm** (see `Parser.h`).
+* **Visual AST Generation:** Automatically builds and draws the syntax tree node-by-node (see `AST.h`).
 * **Interactive View:**
     * **Zoom:** Mouse wheel to zoom in/out of the tree.
     * **Pan:** Click and drag to move around large trees.
-* **Robust Calculation:** Handles standard operators (`+`, `-`, `*`, `/`) and parentheses with correct Order of Operations (precedence).
-* **Smart Validation:** Prevents invalid inputs (like letters or double operators) using Regular Expressions.
-* **Error Handling:** Detects and reports errors like "Division by Zero" or malformed expressions.
-
-## 📥 How to Run (No Coding Required)
-
-If you want to use the application without installing Qt or CLion, follow these steps:
-
-1.  Navigate to the **[cmake-build-debug](:\Syntax_Tree_Calculator\cmake-build-debug\Syntax_Tree_Calculator.exe)** section of this repository.
-2.  Download the latest `.zip` file (e.g., `SyntaxTreeCalculator_v1.0.zip`).
-3.  **Extract (Unzip)** the downloaded folder.
-4.  Open the folder and double-click **`Syntax_Tree_Calculator.exe`**.
-
-> **⚠️ Important:** You must keep the `.exe` file inside the folder. It depends on the surrounding DLL files to function correctly. Do not drag the `.exe` to your desktop; create a shortcut instead.
+* **Robust Calculation:** Handles standard operators (`+`, `-`, `*`, `/`) and parentheses with correct Order of Operations.
+* **Smart Validation:** Prevents invalid inputs (letters, double operators) using Regular Expressions.
+* **Error Handling:** Detects "Division by Zero" and malformed syntax.
 
 ## 🛠️ Technical Stack
 
 * **Language:** C++17
 * **Framework:** Qt 6 (Widgets & Graphics View Framework)
-* **Build System:** CMake
-* **Key Algorithms:**
-    * Shunting-yard Algorithm (Infix to Postfix conversion)
-    * Recursive Tree Traversal (for calculation and rendering)
+* **Build System:** CMake (Cross-platform)
+* **Tools:** CLion, Git
 
-## 📂 Project Structure
+---
 
-* **`AST.h` / `AST.cpp`**: The core logic engine. Handles tokenization, parsing, tree construction, and memory management.
-* **`MainWindow.h`**: The GUI implementation. Manages the window, the zoomable graphics scene, and user input events.
-* **`main.cpp`**: Application entry point.
+## 📥 How to Run (No Coding Required)
+
+If you just want to use the calculator without installing compilers:
+
+1.  Navigate to the **Releases** or `cmake-build-debug` folder in this repo.
+2.  Download the executable/zip.
+3.  **Extract (Unzip)** the folder.
+4.  Double-click **`Syntax_Tree_Calculator.exe`**.
+
+> **⚠️ Important:** Keep the `.exe` file inside the folder. It depends on the surrounding DLL files to function.
+
+---
 
 ## 📦 Build from Source (For Developers)
 
-If you want to modify the code or build it yourself:
-
 ### Prerequisites
-* C++ Compiler (GCC, Clang, or MSVC)
-* Qt 6 Development Libraries
-* CMake (3.14 or higher)
+* **OS:** Windows 10/11 (Linux/Mac supported via CMake but untested)
+* **IDE:** CLion (Recommended) or VS Code
+* **Compiler:** MSVC or MinGW
+* **Qt:** Qt 5 or 6 (Must be installed and linked to CMake)
+* **Git:** For version control
 
-### Steps
-1.  **Clone the repository:**
-    ```bash
-    git clone [https://github.com/Seif-Sallam-1/Syntax-Tree-Calculator.git](https://github.com/Seif-Sallam-1/Syntax-Tree-Calculator.git)
-    cd Syntax-Tree-Calculator
-    ```
+### Quick Build & Run (CLion)
+1.  Open CLion and select **Open**, pointing to the `CMakeLists.txt` folder.
+2.  Configure the CMake profile to point to your Qt kit.
+3.  **Build:** (Build → Build Project).
+4.  **Run:** (Run → Run 'Syntax_Tree_Calculator').
 
-2.  **Create a build directory:**
-    ```bash
-    mkdir build
-    cd build
-    ```
+### Quick Build (Command-Line / PowerShell)
+```powershell
+# 1. Create build directory
+mkdir build; cd build
 
-3.  **Run CMake and Build:**
-    ```bash
-    cmake ..
-    make  # Or 'nmake' on Windows / Open the project in CLion/QtCreator
-    ```
+# 2. Configure (Example using Ninja)
+cmake -S .. -B . -G "Ninja" -DCMAKE_BUILD_TYPE=Release
 
-4.  **Run the Application:**
-    ```bash
-    ./Syntax_Tree_Calculator
-    ```
+# 3. Build
+cmake --build . --config Release
+
+# 4. Run
+.\Syntax_Tree_Calculator.exe
+
+```
+
+---
+
+## 🔄 Versioning & Runtime Files
+
+This project uses specific files to manage versioning and user data.
+
+### 1. Version Control (`version.txt`)
+
+* **Purpose:** The single source-of-truth for the app version (e.g., `0.1.0`).
+* **Location:** Project root.
+* **Usage:** Can be embedded into the binary using `resources.qrc` so the version travels with the executable.
+* **How to Bump:** Update the text file manually or use a script (e.g., `scripts/bump-version.ps1`) before building.
+
+### 2. Calculation History (`calc_history.txt`)
+
+* **Purpose:** An append-only log of expressions and results.
+* **Location:** By default, this is created in the working directory (where the app runs).
+* **Recommendation:** For production builds, this should be excluded from Git and stored in the user's `AppData`.
+
+**Git Ignore Recommendations:**
+Ensure your `.gitignore` includes:
+
+```text
+calc_history.txt
+cmake-build-*
+*.exe
+
+```
+
+---
 
 ## 🤝 Contributing
 
-1.  Fork the project.
-2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
-3.  Commit your changes (`git commit -m 'Add some AmazingFeature'`).
-4.  Push to the branch (`git push origin feature/AmazingFeature`).
-5.  Open a Pull Request.
+Contributions are welcome! Suggested workflow:
+
+1. **Fork** the repository.
+2. Create a branch: `git checkout -b feature/your-feature-name`
+3. Make changes and test.
+4. Commit and push:
+```bash
+git add .
+git commit -m "Add cool feature"
+git push origin feature/your-feature-name
+
+```
+
+
+5. Open a **Pull Request** on GitHub.
 
 ## 📜 License
 
-This project is open-source and available under the [MIT License](LICENSE).
+This project is open-source. Please see the `LICENSE` file for details.
+
+```
