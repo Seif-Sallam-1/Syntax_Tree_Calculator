@@ -1,78 +1,70 @@
-# SmartCalculator
+# Syntax Tree Calculator 🧮
 
-SmartCalculator is a small desktop calculator written in C++ using Qt and CMake. It supports parsing and evaluating mathematical expressions via a custom parser and generates an AST for expressions. The project is configured with CMake and is commonly developed with CLion on Windows.
+A powerful C++ educational tool that parses mathematical expressions, constructs an **Abstract Syntax Tree (AST)**, and visualizes the structure interactively using the Qt framework.
 
-## Features
-- Evaluate arithmetic expressions and parentheses
-- Custom parser and AST representation (see `AST.h`, `Parser.h`)
-- Qt-based GUI (`MainWindow.h`, `main.cpp`)
-- CMake build system for cross-platform builds
+<div align="center">
+  <kbd>
+    <img src="https://github.com/user-attachments/assets/30a408ec-bbf9-4457-9e8e-df8a51751ee7" alt="Syntax Tree Calculator Screenshot" width="900">
+  </kbd>
+</div>
 
-## Prerequisites
-- Windows 10/11
-- CLion (recommended) or CMake + a C++ compiler (MSVC, MinGW)
-- Qt 5 or 6 (installed and available to CMake/CLion)
-- Git (for source control)
-- Optional: GitHub CLI (`gh`) for repository tasks
+## 🚀 Features
 
-## Quick build & run (CLion)
-1. Open CLion and select "Open" then choose the project folder (where `CMakeLists.txt` is).
-2. Configure the CMake profile to point to your Qt kit if required.
-3. Build the project (Build → Build Project).
-4. Run the target from CLion (Run → Run 'SmartCalculator').
+* **Expression Parsing:** Accurate parsing of mathematical expressions using the **Shunting-yard Algorithm** (see `Parser.h`).
+* **Visual AST Generation:** Automatically builds and draws the syntax tree node-by-node (see `AST.h`).
+* **Interactive View:**
+    * **Zoom:** Mouse wheel to zoom in/out of the tree.
+    * **Pan:** Click and drag to move around large trees.
+* **Robust Calculation:** Handles standard operators (`+`, `-`, `*`, `/`) and parentheses with correct Order of Operations.
+* **Smart Validation:** Prevents invalid inputs (letters, double operators) using Regular Expressions.
+* **Error Handling:** Detects "Division by Zero" and malformed syntax.
 
-## Quick build & run (command-line, PowerShell)
-1. Create an out-of-source build directory:
-   mkdir build; cd build
-2. Configure and generate the build system (example using Ninja):
-   cmake -S .. -B . -G "Ninja" -DCMAKE_BUILD_TYPE=Release
-3. Build:
-   cmake --build . --config Release
-4. Run:
-   .\SmartCalculator.exe
+## 🛠️ Technical Stack
 
-## Git / GitHub — push this project to your remote
-If your GitHub repository is empty (you created https://github.com/Seif-Sallam-1/SmartCalculator), here are the commands to push your local project to that remote. Run these in PowerShell from the project root (where this `README.md` lives).
+* **Language:** C++17
+* **Framework:** Qt 6 (Widgets & Graphics View Framework)
+* **Build System:** CMake (Cross-platform)
+* **Tools:** CLion, Git
 
-1) Initialize (if you haven't already) and commit:
-   git init
-   git add --all
-   git commit -m "Initial commit — add project files"
+---
 
-2) Make sure you are using `main` as the primary branch:
-   git branch -M main
+## 📥 How to Run (No Coding Required)
 
-3) Add the remote (HTTPS):
-   git remote add origin https://github.com/Seif-Sallam-1/SmartCalculator.git
+If you just want to use the calculator without installing compilers:
 
-   Or add via SSH (if you set up SSH keys on GitHub):
-   git remote add origin git@github.com:Seif-Sallam-1/SmartCalculator.git
+1.  Navigate to the **Releases** or `cmake-build-debug` folder in this repo.
+2.  Download the executable/zip.
+3.  **Extract (Unzip)** the folder.
+4.  Double-click **`Syntax_Tree_Calculator.exe`**.
 
-4) Push and set upstream:
-   git push -u origin main
+> **⚠️ Important:** Keep the `.exe` file inside the folder. It depends on the surrounding DLL files to function.
 
-Authentication tips:
-- Recommended: run `gh auth login` and follow the interactive flow to authenticate.
-- Or create a Personal Access Token (PAT) on GitHub and use it when prompted for your password for HTTPS pushes.
+---
 
-If you prefer, you can create the remote and push in one command using GitHub CLI:
-   gh repo create Seif-Sallam-1/SmartCalculator --public --source=. --remote=origin --push
+## 📦 Build from Source (For Developers)
 
-## Repository metadata
-After pushing, you can set the repo description and topics (tags) with the GitHub CLI:
-   gh repo edit Seif-Sallam-1/SmartCalculator --description "SmartCalculator — Qt/C++ desktop calculator with expression parsing and AST." --add-topic qt --add-topic calculator --add-topic c++ --add-topic cmake
+### Prerequisites
+* **OS:** Windows 10/11 (Linux/Mac supported via CMake but untested)
+* **IDE:** CLion (Recommended) or VS Code
+* **Compiler:** MSVC or MinGW
+* **Qt:** Qt 5 or 6 (Must be installed and linked to CMake)
+* **Git:** For version control
 
-Or edit the "About" section on the repository page in your browser.
+### Quick Build & Run (CLion)
+1.  Open CLion and select **Open**, pointing to the `CMakeLists.txt` folder.
+2.  Configure the CMake profile to point to your Qt kit.
+3.  **Build:** (Build → Build Project).
+4.  **Run:** (Run → Run 'Syntax_Tree_Calculator').
 
-## Contributing
-Contributions are welcome. Suggested workflow:
-1. Fork the repository or create a branch: `git checkout -b feature/your-feature`
-2. Make changes, add tests where applicable.
-3. Commit and push your branch, then open a pull request.
+### Quick Build (Command-Line / PowerShell)
+```powershell
+# 1. Create build directory
+mkdir build; cd build
 
-## License
-Add a `LICENSE` file to the project root to declare the project's license (for example MIT).
+# 2. Configure (Example using Ninja)
+cmake -S .. -B . -G "Ninja" -DCMAKE_BUILD_TYPE=Release
 
+<<<<<<< HEAD
 ## Contact
 For questions, open an issue on GitHub or contact the maintainer via your GitHub profile.
 
@@ -155,3 +147,65 @@ If you want, I can now:
 - Convert the repo to track `version.txt` and show a quick release workflow (tagging + CI snippet).
 
 Tell me which of those three follow-ups you want me to implement next, and I'll make the changes and re-run build/tests.
+=======
+# 3. Build
+cmake --build . --config Release
+
+# 4. Run
+.\Syntax_Tree_Calculator.exe
+
+```
+
+---
+
+## 🔄 Versioning & Runtime Files
+
+This project uses specific files to manage versioning and user data.
+
+### 1. Version Control (`version.txt`)
+
+* **Purpose:** The single source-of-truth for the app version (e.g., `0.1.0`).
+* **Location:** Project root.
+* **Usage:** Can be embedded into the binary using `resources.qrc` so the version travels with the executable.
+* **How to Bump:** Update the text file manually or use a script (e.g., `scripts/bump-version.ps1`) before building.
+
+### 2. Calculation History (`calc_history.txt`)
+
+* **Purpose:** An append-only log of expressions and results.
+* **Location:** By default, this is created in the working directory (where the app runs).
+* **Recommendation:** For production builds, this should be excluded from Git and stored in the user's `AppData`.
+
+**Git Ignore Recommendations:**
+Ensure your `.gitignore` includes:
+
+```text
+calc_history.txt
+cmake-build-*
+*.exe
+
+```
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Suggested workflow:
+
+1. **Fork** the repository.
+2. Create a branch: `git checkout -b feature/your-feature-name`
+3. Make changes and test.
+4. Commit and push:
+```bash
+git add .
+git commit -m "Add cool feature"
+git push origin feature/your-feature-name
+
+```
+
+
+5. Open a **Pull Request** on GitHub.
+
+## 📜 License
+
+This project is open-source. Please see the [`LICENSE`](https://github.com/Seif-Sallam-1/Syntax_Tree_Calculator/blob/main/LICENSE) file for details.
+>>>>>>> cde703437560e9f0f8af734613a6ca8b22b2b0a3
