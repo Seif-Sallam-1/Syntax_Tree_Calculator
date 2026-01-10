@@ -1,6 +1,8 @@
 # Build artifacts
 /build/
 /cmake-build-debug/
+/cmake-build-release/
+/cmake-build-dynamic/
 /*.exe
 /*.obj
 /*.o
@@ -23,3 +25,8 @@ cmake-build-*/
 .DS_Store
 *.log
 
+# Runtime / generated
+calc_history.txt
+
+# If you prefer version.txt to be environment-specific, uncomment:
+# version.txt

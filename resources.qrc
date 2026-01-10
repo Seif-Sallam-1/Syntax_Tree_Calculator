@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>ress/App_Icon.png</file>
+        <file>version.txt</file>
     </qresource>
 </RCC>

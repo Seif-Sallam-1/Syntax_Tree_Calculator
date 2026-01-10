@@ -7,6 +7,8 @@
 #include <QMessageBox>
 #include <QIcon>
 #include <QGraphicsLineItem>
+#include <QStandardPaths>
+#include <QDir>
 
 
 ZoomableView::ZoomableView(QGraphicsScene *scene) : QGraphicsView(scene) {
@@ -40,7 +42,19 @@ CalcButton::CalcButton(const QString &text, const QString &color) : QPushButton(
 
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), currentStepIndex(-1) {
-    setWindowTitle("Data Structure SyntaxTree Calculator");
+    // Load version from resource (if available)
+    QString versionStr;
+    QFile vfile(":/version.txt");
+    if (vfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&vfile);
+        versionStr = in.readAll().trimmed();
+        vfile.close();
+    }
+
+    QString title = "Data Structure SyntaxTree Calculator";
+    if (!versionStr.isEmpty()) title += " — v" + versionStr;
+
+    setWindowTitle(title);
     setWindowIcon(QIcon(":/ress/App_Icon.png"));
     resize(600, 950);
     setStyleSheet("QMainWindow { background-color: #121212; }");
@@ -138,7 +152,12 @@ void MainWindow::clearHistory() {
 
 
 void MainWindow::saveToHistory(const QString &expression, const QString &result) {
-    QFile file("calc_history.txt");
+    // Use per-user AppData location for history
+    QString appData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir().mkpath(appData);
+    QString historyPath = QDir(appData).filePath("calc_history.txt");
+
+    QFile file(historyPath);
     if (file.open(QIODevice::Append | QIODevice::Text)) {
         QTextStream out(&file);
         QString timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
@@ -148,6 +167,9 @@ void MainWindow::saveToHistory(const QString &expression, const QString &result)
 }
 
 void MainWindow::showHistory() {
+    QString appData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QString historyPath = QDir(appData).filePath("calc_history.txt");
+
     QDialog historyDlg(this);
     historyDlg.setWindowTitle("Calculation History");
     historyDlg.resize(400, 500);
@@ -161,7 +183,7 @@ void MainWindow::showHistory() {
     layout->addWidget(historyText);
 
     // Read File
-    QFile file("calc_history.txt");
+    QFile file(historyPath);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream in(&file);
         historyText->setText(in.readAll());
@@ -172,9 +194,11 @@ void MainWindow::showHistory() {
 
     QPushButton *btnClear = new QPushButton("Clear Log");
     btnClear->setStyleSheet("background-color: #D32F2F; color: white; padding: 8px;");
-    connect(btnClear, &QPushButton::clicked, [&](){
-        file.open(QIODevice::WriteOnly | QIODevice::Truncate);
-        file.close();
+    connect(btnClear, &QPushButton::clicked, [historyPath, historyText](){
+        QFile f(historyPath);
+        if (f.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+            f.close();
+        }
         historyText->clear();
     });
     layout->addWidget(btnClear);
@@ -339,3 +363,4 @@ void MainWindow::drawTreeRecursive(AST::BNode* node, double x, double y, double 
     text->setPos(x - textRect.width()/2, y - textRect.height()/2);
     text->setZValue(11);
 }
+
