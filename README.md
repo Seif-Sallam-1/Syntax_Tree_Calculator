@@ -1,10 +1,3 @@
-Here is the complete, unified **README.md** with the requested versioning section included, followed by the specific **Git commands** to merge your `step-by-step` branch into `main`.
-
-### 1. The Unified README.md
-
-Copy the code block below into your `README.md` file.
-
-```markdown
 # Syntax Tree Calculator 🧮
 
 A powerful C++ educational tool that parses mathematical expressions, constructs an **Abstract Syntax Tree (AST)**, and visualizes the structure interactively using the Qt framework.
@@ -131,5 +124,3 @@ git push origin feature/your-feature-name
 ## 📜 License
 
 This project is open-source. Please see the `LICENSE` file for details.
-
-```
