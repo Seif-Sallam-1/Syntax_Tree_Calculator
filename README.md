@@ -4,7 +4,7 @@ A powerful C++ educational tool that parses mathematical expressions, constructs
 
 <div align="center">
   <kbd>
-    <img src="https://github.com/user-attachments/assets/81d86703-b618-45f0-a963-504cecd7e8a0" alt="Framed Image" width="900">
+    <img src="https://github.com/user-attachments/assets/30a408ec-bbf9-4457-9e8e-df8a51751ee7" alt="Framed Image" width="900">
   </kbd>
 </div>
 
