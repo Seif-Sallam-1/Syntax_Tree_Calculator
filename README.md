@@ -64,90 +64,6 @@ mkdir build; cd build
 # 2. Configure (Example using Ninja)
 cmake -S .. -B . -G "Ninja" -DCMAKE_BUILD_TYPE=Release
 
-<<<<<<< HEAD
-## Contact
-For questions, open an issue on GitHub or contact the maintainer via your GitHub profile.
-
-## Dynamic storage files (runtime / generated files)
-This section explains which files the application generates or reads at runtime, where they live, and how to manage them in the repository and in distribution.
-
-Files used by the app
-- `version.txt` (optional, recommended): single-line text file containing the app version (e.g. `0.1.0`).
-  - Purpose: single source-of-truth for the app version. Can be embedded into the binary using `resources.qrc` (so the version travels with the executable) or kept external next to the executable for runtime editable versions.
-  - Location: project root (during development) or embedded as a resource (`:/version.txt`) when packaged.
-
-- `calc_history.txt`: runtime log of calculations saved by the app.
-  - Purpose: append-only history of expressions and results. Created in the working directory (same directory where the app runs).
-  - Location: by default the app writes `calc_history.txt` into the current working directory (for development runs, this is the project root or the build output folder). For a production installer, prefer storing runtime data in the user's profile (AppData) or a per-user folder.
-
-How to package vs keep external
-- Embedded version (recommended for shipped builds): add `version.txt` to `resources.qrc` so it's embedded and accessible at runtime as `:/version.txt`. This guarantees the version inside the binary matches the installed build.
-- External version (useful for quick local edits): keep a plain `version.txt` next to the executable and modify it without rebuilding.
-- History and user data: do not commit `calc_history.txt` to the repo. Store it per-user (AppData) for installed builds.
-
-Git / .gitignore recommendations
-- Add runtime/temporary files to `.gitignore` so they are not accidentally committed. Suggested entries:
-
-```
-# runtime / generated
-calc_history.txt
-cmake-build-*
-cmake-build-*/
-*/CMakeFiles/
-*/Syntax_Tree_Calculator_autogen/
-*.exe
-```
-
-- Keep `version.txt` tracked if you want it as a source-of-truth and embed it into resources; otherwise add it to `.gitignore` if you prefer it to be edited per-deployment.
-
-How to read and update the files
-- Read `:/version.txt` in Qt (if embedded):
-
-```cpp
-QFile f(":/version.txt");
-if (f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-  QString version = QString::fromUtf8(f.readAll()).trimmed();
-}
-```
-
-- Read external `version.txt` next to executable:
-
-```cpp
-QFile f(QCoreApplication::applicationDirPath() + "/version.txt");
-```
-
-- Clear or move `calc_history.txt`:
-  - Delete or open the file with truncate to clear it.
-  - For production, modify the code to use `QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)` to save per-user data.
-
-Bumping the version (quick PowerShell example)
-- Simple patch bump (script example included in `scripts/bump-version.ps1`):
-
-```powershell
-# bump patch
-.\scripts\bump-version.ps1
-# or bump minor/major
-.\scripts\bump-version.ps1 minor
-.\scripts\bump-version.ps1 major
-```
-
-- After you change `version.txt` (external) or regenerate resources, rebuild the project so the embedded qrc contains the new value.
-
-CI and releases
-- Option A — tracked `version.txt`: CI reads `version.txt` to tag releases and build artifacts.
-- Option B — tag-driven: use Git tags (v1.2.3) in CI and generate `version.h` or `version.txt` from the tag during the build.
-
-Examples / small changes you may want
-- Move `calc_history.txt` to AppData (recommended for installers): modify `saveToHistory()` to write to a path returned by `QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)`.
-- Add a `scripts/bump-version.ps1` (already present in this repo) and keep `version.txt` tracked for simple releases.
-
-If you want, I can now:
-- Add a short `.gitignore` entry for `calc_history.txt` and common build outputs.
-- Update `saveToHistory()` to write to AppData instead of the working directory.
-- Convert the repo to track `version.txt` and show a quick release workflow (tagging + CI snippet).
-
-Tell me which of those three follow-ups you want me to implement next, and I'll make the changes and re-run build/tests.
-=======
 # 3. Build
 cmake --build . --config Release
 
@@ -208,4 +124,3 @@ git push origin feature/your-feature-name
 ## 📜 License
 
 This project is open-source. Please see the [`LICENSE`](https://github.com/Seif-Sallam-1/Syntax_Tree_Calculator/blob/main/LICENSE) file for details.
->>>>>>> cde703437560e9f0f8af734613a6ca8b22b2b0a3
