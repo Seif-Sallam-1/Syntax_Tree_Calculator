@@ -123,4 +123,4 @@ git push origin feature/your-feature-name
 
 ## 📜 License
 
-This project is open-source. Please see the `LICENSE` file for details.
+This project is open-source. Please see the [`LICENSE`](https://github.com/Seif-Sallam-1/Syntax_Tree_Calculator/blob/main/LICENSE) file for details.
