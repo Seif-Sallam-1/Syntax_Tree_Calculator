@@ -8,6 +8,27 @@
 
 using namespace std;
 
+
+void AST::StringArray::add(string s) {
+    string* newData = new string[size + 1];
+
+    for (int i = 0; i < size; ++i) {
+        newData[i] = data[i];
+    }
+    newData[size] = s;
+
+    delete[] data;
+    data = newData;
+    size++;
+}
+
+void AST::StringArray::clear() {
+    delete[] data;
+    data = nullptr;
+    size = 0;
+}
+
+
 AST::BNode::BNode(string val, BNode *l, BNode *r)
     : data(val), left(l), right(r) {}
 
@@ -44,48 +65,66 @@ bool AST::isOperator(const string &part) {
     return part == "+" || part == "-" || part == "*" || part == "/" || part == "_NEG_";
 }
 
-vector<string> AST::tokenize(const string& expression) {
-    vector<string> parts;
+AST::StringArray AST::tokenize(const string& expression) {
+    StringArray parts;
     string current_part;
     for (char c : expression) {
         string op_str(1, c);
         if (op_str == "+" || op_str == "-" || op_str == "*" || op_str == "/" || op_str == "(" || op_str == ")") {
-            if (!current_part.empty()) { parts.push_back(current_part); current_part.clear(); }
-            parts.push_back(op_str);
-        } else current_part += c;
+            if (!current_part.empty()) {
+                parts.add(current_part);
+                current_part.clear();
+            }
+            parts.add(op_str);
+        } else {
+             current_part += c;
+        }
     }
-    if (!current_part.empty()) parts.push_back(current_part);
+    if (!current_part.empty()) parts.add(current_part);
     return parts;
 }
 
-vector<string> AST::handleUnaryOperators(const vector<string>& tokens) {
-    vector<string> processed = tokens;
-    if (processed.empty()) return processed;
-    if (processed[0] == "-") processed[0] = "_NEG_";
-    for (int i = 1; i < processed.size(); ++i) {
-        if (processed[i] == "-") {
-            const string &prev_part = processed[i - 1];
-            if (isOperator(prev_part) || prev_part == "(") processed[i] = "_NEG_";
+AST::StringArray AST::handleUnaryOperators(const StringArray& tokens) {
+    StringArray processed;
+
+    for (int i = 0; i < tokens.size; ++i) {
+        processed.add(tokens.data[i]);
+    }
+
+    if (processed.size == 0) return processed;
+
+    if (processed.data[0] == "-") processed.data[0] = "_NEG_";
+
+    for (int i = 1; i < processed.size; ++i) {
+        if (processed.data[i] == "-") {
+            const string &prev_part = processed.data[i - 1];
+            if (isOperator(prev_part) || prev_part == "(") {
+                processed.data[i] = "_NEG_";
+            }
         }
     }
     return processed;
 }
 
-void AST::infixToPostfix(const vector<string>& tokens) {
+void AST::infixToPostfix(const StringArray& tokens) {
     stack<string> opStack;
     postfixContainer.clear();
-    for (const string &part: tokens) {
-        if (!isOperator(part) && part != "(" && part != ")") postfixContainer.push_back(part);
-        else if (part == "(") opStack.push(part);
-        else if (part == ")") {
+    for (int i = 0; i < tokens.size; ++i) {
+        string part = tokens.data[i];
+
+        if (!isOperator(part) && part != "(" && part != ")") {
+            postfixContainer.add(part);
+        } else if (part == "(") {
+            opStack.push(part);
+        } else if (part == ")") {
             while (!opStack.empty() && opStack.top() != "(") {
-                postfixContainer.push_back(opStack.top());
+                postfixContainer.add(opStack.top());
                 opStack.pop();
             }
             if (!opStack.empty()) opStack.pop();
         } else if (isOperator(part)) {
             while (!opStack.empty() && opStack.top() != "(" && getPrecedence(opStack.top()) >= getPrecedence(part)) {
-                postfixContainer.push_back(opStack.top());
+                postfixContainer.add(opStack.top());
                 opStack.pop();
             }
             opStack.push(part);
@@ -93,26 +132,35 @@ void AST::infixToPostfix(const vector<string>& tokens) {
     }
     while (!opStack.empty()) {
         if (opStack.top() == "(") throw runtime_error("Error: Unmatched left parenthesis.");
-        postfixContainer.push_back(opStack.top());
+        postfixContainer.add(opStack.top());
         opStack.pop();
     }
 }
 
 AST::AST(string expression) : head(nullptr) {
-    vector<string> raw_tokens = tokenize(expression);
-    vector<string> processed_tokens = handleUnaryOperators(raw_tokens);
+    StringArray raw_tokens = tokenize(expression);
+    StringArray processed_tokens = handleUnaryOperators(raw_tokens);
     infixToPostfix(processed_tokens);
     buildTree();
+
+    raw_tokens.clear();
+    processed_tokens.clear();
 }
 
-AST::~AST() { delete head; }
+AST::~AST() {
+    delete head;
+    postfixContainer.clear();
+}
 
 void AST::buildTree() {
     if (head) { delete head; head = nullptr; }
-    if (postfixContainer.empty()) return;
+    if (postfixContainer.size == 0) return;
 
     stack<BNode *> nodeStack;
-    for (const string &part: postfixContainer) {
+
+    for (int i = 0; i < postfixContainer.size; ++i) {
+        string part = postfixContainer.data[i];
+
         if (part == "_NEG_") {
             if (nodeStack.empty()) throw runtime_error("Missing operand for unary -");
             BNode *right = nodeStack.top(); nodeStack.pop();
@@ -144,7 +192,6 @@ double AST::calculateOp(const string& op, double leftVal, double rightVal) {
 string formatNumber(double val) {
     return format("{:.2f}", val);
 }
-
 
 int AST::getMaxDepth(BNode* node) {
     if (!node) return 0;

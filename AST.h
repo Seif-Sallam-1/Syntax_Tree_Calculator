@@ -2,7 +2,6 @@
 #define AST_H
 
 #include <string>
-#include <vector>
 
 using namespace std;
 
@@ -17,17 +16,28 @@ public:
         ~BNode();
     };
 
+    struct StringArray {
+        string* data;
+        int size;
+
+        StringArray() : data(nullptr), size(0) {}
+
+        void add(string s);
+        void clear();
+    };
+
 private:
     BNode* head;
-    vector<string> postfixContainer;
+
+    StringArray postfixContainer;
 
     int getPrecedence(const string& op);
     bool isOperator(const string& part);
     double calculateRecursive(BNode* node);
 
-    vector<string> tokenize(const string& expression);
-    vector<string> handleUnaryOperators(const vector<string>& tokens);
-    void infixToPostfix(const vector<string>& tokens);
+    StringArray tokenize(const string& expression);
+    StringArray handleUnaryOperators(const StringArray& tokens);
+    void infixToPostfix(const StringArray& tokens);
 
     BNode* copyTree(BNode* node);
     double calculateOp(const string& op, double left, double right);
